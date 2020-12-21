@@ -6,6 +6,14 @@ import (
 
 func TestAccAWSAppmesh_serial(t *testing.T) {
 	testCases := map[string]map[string]func(t *testing.T){
+		"GatewayRoute": {
+			"basic":      testAccAwsAppmeshGatewayRoute_basic,
+			"disappears": testAccAwsAppmeshGatewayRoute_disappears,
+			"grpcRoute":  testAccAwsAppmeshGatewayRoute_GrpcRoute,
+			"httpRoute":  testAccAwsAppmeshGatewayRoute_HttpRoute,
+			"http2Route": testAccAwsAppmeshGatewayRoute_Http2Route,
+			"tags":       testAccAwsAppmeshGatewayRoute_Tags,
+		},
 		"Mesh": {
 			"basic":        testAccAwsAppmeshMesh_basic,
 			"egressFilter": testAccAwsAppmeshMesh_egressFilter,
@@ -25,16 +33,29 @@ func TestAccAWSAppmesh_serial(t *testing.T) {
 			"tcpRouteTimeout":   testAccAwsAppmeshRoute_tcpRouteTimeout,
 			"tags":              testAccAwsAppmeshRoute_tags,
 		},
+		"VirtualGateway": {
+			"basic":                  testAccAwsAppmeshVirtualGateway_basic,
+			"disappears":             testAccAwsAppmeshVirtualGateway_disappears,
+			"backendDefaults":        testAccAwsAppmeshVirtualGateway_BackendDefaults,
+			"listenerConnectionPool": testAccAwsAppmeshVirtualGateway_ListenerConnectionPool,
+			"listenerHealthChecks":   testAccAwsAppmeshVirtualGateway_ListenerHealthChecks,
+			"listenerTls":            testAccAwsAppmeshVirtualGateway_ListenerTls,
+			"logging":                testAccAwsAppmeshVirtualGateway_Logging,
+			"tags":                   testAccAwsAppmeshVirtualGateway_Tags,
+		},
 		"VirtualNode": {
 			"basic":                    testAccAwsAppmeshVirtualNode_basic,
+			"disappears":               testAccAwsAppmeshVirtualNode_disappears,
+			"backendClientPolicyAcm":   testAccAwsAppmeshVirtualNode_backendClientPolicyAcm,
+			"backendClientPolicyFile":  testAccAwsAppmeshVirtualNode_backendClientPolicyFile,
 			"backendDefaults":          testAccAwsAppmeshVirtualNode_backendDefaults,
-			"clientPolicyAcm":          testAccAwsAppmeshVirtualNode_clientPolicyAcm,
-			"clientPolicyFile":         testAccAwsAppmeshVirtualNode_clientPolicyFile,
 			"cloudMapServiceDiscovery": testAccAwsAppmeshVirtualNode_cloudMapServiceDiscovery,
+			"listenerConnectionPool":   testAccAwsAppmeshVirtualNode_listenerConnectionPool,
+			"listenerOutlierDetection": testAccAwsAppmeshVirtualNode_listenerOutlierDetection,
 			"listenerHealthChecks":     testAccAwsAppmeshVirtualNode_listenerHealthChecks,
 			"listenerTimeout":          testAccAwsAppmeshVirtualNode_listenerTimeout,
+			"listenerTls":              testAccAwsAppmeshVirtualNode_listenerTls,
 			"logging":                  testAccAwsAppmeshVirtualNode_logging,
-			"tls":                      testAccAwsAppmeshVirtualNode_tls,
 			"tags":                     testAccAwsAppmeshVirtualNode_tags,
 		},
 		"VirtualRouter": {
