@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/service/route53"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/terraform-providers/terraform-provider-aws/aws/internal/keyvaluetags"
@@ -15,6 +16,10 @@ func dataSourceAwsRoute53Zone() *schema.Resource {
 		Read: dataSourceAwsRoute53ZoneRead,
 
 		Schema: map[string]*schema.Schema{
+			"arn": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"zone_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -97,7 +102,7 @@ func dataSourceAwsRoute53ZoneRead(d *schema.ResourceData, meta interface{}) erro
 		resp, err := conn.ListHostedZones(req)
 
 		if err != nil {
-			return fmt.Errorf("Error finding Route 53 Hosted Zone: %v", err)
+			return fmt.Errorf("Error finding Route 53 Hosted Zone: %w", err)
 		}
 		for _, hostedZone := range resp.HostedZones {
 			hostedZoneId := cleanZoneID(aws.StringValue(hostedZone.Id))
@@ -113,7 +118,7 @@ func dataSourceAwsRoute53ZoneRead(d *schema.ResourceData, meta interface{}) erro
 
 					respHostedZone, errHostedZone := conn.GetHostedZone(reqHostedZone)
 					if errHostedZone != nil {
-						return fmt.Errorf("Error finding Route 53 Hosted Zone: %v", errHostedZone)
+						return fmt.Errorf("Error finding Route 53 Hosted Zone: %w", errHostedZone)
 					}
 					// we go through all VPCs
 					for _, vpc := range respHostedZone.VPCs {
@@ -189,6 +194,13 @@ func dataSourceAwsRoute53ZoneRead(d *schema.ResourceData, meta interface{}) erro
 	if err := d.Set("tags", tags.IgnoreAws().IgnoreConfig(ignoreTagsConfig).Map()); err != nil {
 		return fmt.Errorf("error setting tags: %w", err)
 	}
+
+	arn := arn.ARN{
+		Partition: meta.(*AWSClient).partition,
+		Service:   "route53",
+		Resource:  fmt.Sprintf("hostedzone/%s", d.Id()),
+	}.String()
+	d.Set("arn", arn)
 
 	return nil
 }
